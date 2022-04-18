@@ -1,9 +1,9 @@
 #!/bin/bash
 function _modify_dns(){
 if [ ! -f /etc/resolv.conf.default ]; then
-    mv /etc/resolv.conf /etc/resolv.conf.default
+    cp -a /etc/resolv.conf /etc/resolv.conf.default
 fi
-mv /etc/resolv.conf /etc/resolv.conf.userbak
+cp -a /etc/resolv.conf /etc/resolv.conf.userbak
 case "${DNS_PROVIDER}" in
     "ali")
         cat > /etc/resolv.conf << EOF
@@ -78,7 +78,7 @@ esac
 
 if [[ ! $(systemctl is-enabled systemd-resolved.service) == "enabled" ]]; then
     _warning "DNS service isn't set to auto-start. Setting to auto-start..."
-    systemctl enable systemd-resolved.service
+    systemctl enable systemd-resolved.service >>/root/.pveinstall/log/enable_systemd-resolved.log 2>&1
     _success "DNS service has been set to start automatically"
 fi
 if [[ ! $(systemctl is-active systemd-resolved.service) == "active" ]]; then

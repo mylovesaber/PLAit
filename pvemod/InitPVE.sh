@@ -46,7 +46,7 @@ EOF
 source /root/.bashrc
 
 # 换源/清除 pve 的无订阅警告/更新版本
-dpkg -i "${SOURCE_PATH}"/pvemod/deb/pve-fake-subscription_0.0.7_all.deb
+dpkg -i "${SOURCE_PATH}"/pvemod/deb/pve-fake-subscription_0.0.7_all.deb >>/root/.pveinstall/log/install_fake-subscription.log 2>&1
 sed -i '/maurer/d' /etc/hosts
 echo "127.0.0.1 shop.maurer-it.com" >> /etc/hosts
 # #以下方法每次版本更新的时候就会失效，暂时屏蔽
@@ -79,7 +79,7 @@ rm -f /etc/apt/sources.list.d/pve-enterprise.list
 _info "Checking and performing updates to system... "
 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >/root/.pveinstall/log/upgrade_system.log 2>&1
 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade >>/root/.pveinstall/log/upgrade_system.log 2>&1
-apt install -y net-tools qemu-guest-agent jq
+apt install -y net-tools qemu-guest-agent jq >>/root/.pveinstall/log/install_necessary_packages.log 2>&1
 
 if [ $? == 0 ]; then
     touch /root/.pveinstall/info/INITIALIZE_FINISHED
