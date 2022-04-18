@@ -5,7 +5,7 @@ DNS_PROVIDER=
 REBOOT=0
 
 # 此处文件夹名的检测指定为项目名称，不可更改
-if [ "$(dirname $PWD)" != "pve-home-autoinstall" ]; then
+if [ "$(basename $PWD)" != "pve-home-autoinstall" ]; then
     tput setaf 1
     echo -e "Wrong path! Please run it from the root path of this project. E.g.:\n
     cd /root/pve-home-autoinstall"
