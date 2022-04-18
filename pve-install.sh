@@ -80,7 +80,8 @@ done
 # Main
 if [ ! -d /root/.pveinstall/info ]; then
     mkdir -p /root/.pveinstall/info
-elif [ ! -d /root/.pveinstall/log ]; then
+fi
+if [ ! -d /root/.pveinstall/log ]; then
     mkdir -p /root/.pveinstall/log
 fi
 
