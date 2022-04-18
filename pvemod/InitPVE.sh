@@ -61,7 +61,9 @@ if [ "${update_source}" == "default" ]; then
     echo "deb http://download.proxmox.com/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
 elif [ "${update_source}" == "china" ]; then
     echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
-    cp -a /usr/share/perl5/PVE/APLInfo.pm /usr/share/perl5/PVE/APLInfo.pm.default
+    if [ ! -f /usr/share/perl5/PVE/APLInfo.pm.default ]; then
+        cp -a /usr/share/perl5/PVE/APLInfo.pm /usr/share/perl5/PVE/APLInfo.pm.default
+    fi
     sed -i 's|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|g' /usr/share/perl5/PVE/APLInfo.pm
     if [ ! -f /etc/apt/sources.list.default ]; then
         cp -a /etc/apt/sources.list /etc/apt/sources.list.default
