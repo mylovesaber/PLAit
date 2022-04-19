@@ -10,14 +10,14 @@ function _print() {
 	printf "${_norm}%s${_norm}\n" "$@"
 }
 function _info() {
-	printf "${_cyan}? %s${_norm}\n" "$@"
+	printf "${_cyan}➜ %s${_norm}\n" "$@"
 }
 function _success() {
-	printf "${_green}? %s${_norm}\n" "$@"
+	printf "${_green}✓ %s${_norm}\n" "$@"
 }
 function _warning() {
-	printf "${_tan}? %s${_norm}\n" "$@"
+	printf "${_tan}⚠ %s${_norm}\n" "$@"
 }
 function _error() {
-	printf "${_red}? %s${_norm}\n" "$@"
+	printf "${_red}✗ %s${_norm}\n" "$@"
 }
