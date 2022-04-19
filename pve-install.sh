@@ -118,6 +118,8 @@ _init_pve_start
 if [ "${CPU_CHECK}" == 1 ] && [ "${CPU_PASSTHROUGH}" == 1 ]; then
     _error "<--checkcpu> cannot be combined with <--cpu_passthrough> option!"
     _error "Please remove one of these options and run this project!"
+    _error "Exit..."
+    sleep 3
     exit 1
 fi
 

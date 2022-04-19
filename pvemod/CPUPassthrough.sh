@@ -13,40 +13,42 @@ else
         if dmesg | grep "IOMMU enabled" > /dev/null 2>&1; then
             _success "IOMMU enabled. Setting skipped..."
         else
-            cp -a /etc/default/grub /etc/default/grub.bak
-            if [[ "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
-                case "$(grep -E '(vmx|svm)' /proc/cpuinfo)" in
-                    "vmx")
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ intel_iommu=on iommu=pt\"/g" /etc/default/grub
-                        ;;
-                    "svm")
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ amd_iommu=on iommu=pt\"/g" /etc/default/grub
-                        ;;
-                    *)
-                        _error "CPU type not recognized!"
-                        exit 1
-                        ;;
-                esac
-            elif [[ ! "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
-                case "$(grep -E '(vmx|svm)' /proc/cpuinfo)" in
-                    "vmx")
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet intel_iommu=on iommu=pt\"/g" /etc/default/grub
-                        ;;
-                    "svm")
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet amd_iommu=on iommu=pt\"/g" /etc/default/grub
-                        ;;
-                    *)
-                        _error "CPU type not recognized!"
-                        exit 1
-                        ;;
-                esac
-            else
-                _error "Unexpected behavior in grub when configuring"
-                exit 1
+            if [ -z "$(grep "iommu=on" /etc/default/grub)" ];then
+                cp -af /etc/default/grub /etc/default/grub.bak
+                if [[ "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
+                    case "$(grep -E '(vmx|svm)' /proc/cpuinfo)" in
+                        "vmx")
+                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ intel_iommu=on iommu=pt\"/g" /etc/default/grub
+                            ;;
+                        "svm")
+                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ amd_iommu=on iommu=pt\"/g" /etc/default/grub
+                            ;;
+                        *)
+                            _error "CPU type not recognized!"
+                            return 1
+                            ;;
+                    esac
+                elif [[ ! "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
+                    case "$(grep -E '(vmx|svm)' /proc/cpuinfo)" in
+                        "vmx")
+                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet intel_iommu=on iommu=pt\"/g" /etc/default/grub
+                            ;;
+                        "svm")
+                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet amd_iommu=on iommu=pt\"/g" /etc/default/grub
+                            ;;
+                        *)
+                            _error "CPU type not recognized!"
+                            return 1
+                            ;;
+                    esac
+                else
+                    _error "Unexpected behavior in grub when configuring"
+                    return 1
+                fi
+                update-grub
             fi
-            update-grub
         fi
-        if ! grep "vfio" /etc/modules; then
+        if ! grep "vfio" /etc/modules > /dev/null 2>&1; then
             cp -a /etc/modules /etc/modules.bak
             {
                 echo "vfio"
@@ -83,7 +85,7 @@ elif [ -f /root/.pveinstall/info/CPU_PASSTHROUGH_FINISHED ]; then
         else
             _warning "An unexpected situation occurs, please check"
             find /sys/kernel/iommu_groups/ -type l
-            exit 1
+            return 1
         fi
     else
         _error "CPU passthrough failed!"
@@ -98,9 +100,7 @@ elif [ -f /root/.pveinstall/info/CPU_PASSTHROUGH_FINISHED ]; then
             sed -i '/vfio/d' /etc/modules
         fi
         update-initramfs -k all -u
-
-        rm -rf /etc/default/grub
-        mv /etc/default/grub.bak /etc/default/grub
+        [ -f /etc/default/grub.bak ] && mv /etc/default/grub.bak /etc/default/grub
         update-grub
         touch /root/.pveinstall/info/CPU_PASSTHROUGH_NOT_SUPPORT
     fi
