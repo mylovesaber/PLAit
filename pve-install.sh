@@ -1,4 +1,5 @@
 #!/bin/bash
+ARGS=
 update_source="default"
 fix_update_problem=0
 DNS_PROVIDER=
@@ -57,6 +58,16 @@ then
     _error "source $0 -h"
     _help
     exit 1
+elif [ -z "$1" ]; then
+    _warning "Please enter options to run the project function!"
+    _warning "Here is the help information:"
+    _help
+    exit 1
+elif [ "$1" == "-" ]; then
+    _warning "Please enter correct options to run the project function!"
+    _warning "Here is the help information:"
+    _help
+    exit 1
 fi
 eval set -- "${ARGS}"
 while true; do
@@ -68,24 +79,24 @@ while true; do
     -f | --fix_update_problem)
         fix_update_problem=1
         ;;
-	-d | --setdns)
-		DNS_PROVIDER="$2"
+    -d | --setdns)
+        DNS_PROVIDER="$2"
         shift
-		;;
-	-c | --cpu_passthrough)
-		CPU_PASSTHROUGH=1
-		;;
-	--checkcpu)
-		CPU_CHECK=1
-		;;
-	-r | --reboot)
-		REBOOT=1
-		;;
-	-h | --help)
+        ;;
+    -c | --cpu_passthrough)
+        CPU_PASSTHROUGH=1
+        ;;
+    --checkcpu)
+        CPU_CHECK=1
+        ;;
+    -r | --reboot)
+        REBOOT=1
+        ;;
+    -h | --help)
         HELP=1
-		_help
+        _help
         exit 0
-		;;
+        ;;
     --)
         shift
         break
