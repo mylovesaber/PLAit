@@ -2,10 +2,12 @@
 update_source="default"
 fix_update_problem=0
 DNS_PROVIDER=
+CPU_PASSTHROUGH=0
+CPU_CHECK=0
 REBOOT=0
 
 # 此处文件夹名的检测指定为项目名称，不可更改
-if [ "$(basename $PWD)" != "pve-home-autoinstall" ]; then
+if [ "$(basename "$PWD")" != "pve-home-autoinstall" ]; then
     tput setaf 1
     echo -e "Wrong path! Please run it from the root path of this project. E.g.:\n
     cd /root/pve-home-autoinstall"
@@ -36,11 +38,20 @@ function _modify_dns_start(){
     _modify_dns
 }
 
+function _cpu_passthrough_start(){
+    source "${SOURCE_PATH}"/pvemod/CPUPassthrough.sh
+    if [ "${CPU_PASSTHROUGH}" == 1 ]; then
+        _cpu_passthrough
+    elif [ "${CPU_CHECK}" == 1 ]; then
+        _checkcpu
+    fi
+}
+
 function _help(){
     echo "This is a pending help message..."
 }
 
-if ! ARGS=$(getopt -a -o s:,f,d:,r,h -l update_source:,fix_update_problem,setdns:,reboot,help -- "$@")
+if ! ARGS=$(getopt -a -o s:,f,d:,c,r,h -l update_source:,fix_update_problem,setdns:,cpu_passthrough,checkcpu,reboot,help -- "$@")
 then
     _error "Invalid option, please run the following command to check usage:"
     _error "source $0 -h"
@@ -60,6 +71,12 @@ while true; do
 	-d | --setdns)
 		DNS_PROVIDER="$2"
         shift
+		;;
+	-c | --cpu_passthrough)
+		CPU_PASSTHROUGH=1
+		;;
+	--checkcpu)
+		CPU_CHECK=1
 		;;
 	-r | --reboot)
 		REBOOT=1
@@ -87,6 +104,14 @@ fi
 
 _init_pve_start
 
+if [ "${CPU_CHECK}" == 1 ] && [ "${CPU_PASSTHROUGH}" == 1 ]; then
+    _error "<--checkcpu> cannot be combined with <--cpu_passthrough> option!"
+    _error "Please remove one of these options and run this project!"
+    exit 1
+fi
+
 [ -n "${DNS_PROVIDER}" ] && _modify_dns_start
+
+{ [ "${CPU_PASSTHROUGH}" == 1 ] || [ "${CPU_CHECK}" == 1 ]; } && _cpu_passthrough_start
 
 [ "${REBOOT}" == 1 ] && reboot
