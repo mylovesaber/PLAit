@@ -20,7 +20,7 @@ INFO_PATH="/root/.pveinstall/info"
 
 #####################################################
 
-# ´Ë´¦ÎÄ¼ş¼ĞÃûµÄ¼ì²âÖ¸¶¨ÎªÏîÄ¿Ãû³Æ£¬²»¿É¸ü¸Ä
+# æ­¤å¤„æ–‡ä»¶å¤¹åçš„æ£€æµ‹æŒ‡å®šä¸ºé¡¹ç›®åç§°ï¼Œä¸å¯æ›´æ”¹
 if [ "$(basename "$PWD")" != "PLAit" ]; then
     tput setaf 1
     echo -e "Wrong path! Please run it from the root path of this project. E.g.:\n
@@ -102,9 +102,9 @@ function _cpu_passthrough_start(){
 }
 
 function _modify_conf(){
-# ÔİÊ±²»ÆôÓÃ
+# æš‚æ—¶ä¸å¯ç”¨
 if [[ -f /pveinstall/info/SYSCTL_MODIFIED ]]; then
-    _warning "sysctl.conf ÎÄ¼şÒÑĞŞ¸Ä£¡Ìø¹ı..."
+    _warning "sysctl.conf æ–‡ä»¶å·²ä¿®æ”¹ï¼è·³è¿‡..."
 else
     cp -a /etc/sysctl.conf /etc/sysctl.conf.bak
     cat <<EOF >> /etc/sysctl.conf

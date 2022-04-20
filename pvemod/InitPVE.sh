@@ -28,7 +28,7 @@ fi
 
 function _init_pve(){
 _info "Initializing... It may take a long time, please be patient..."
-# ÃüÁîĞĞ¿É¶ÁĞÔµ÷Õû
+# å‘½ä»¤è¡Œå¯è¯»æ€§è°ƒæ•´
 if [ ! -f /root/.bashrc.default ]; then
     cp -a /root/.bashrc /root/.bashrc.default
 else
@@ -46,11 +46,11 @@ PS1='\${debian_chroot:+(\$debian_chroot)}\[\e[1;31m\]\u\[\e[1;33m\]@\[\e[1;36m\]
 EOF
 source /root/.bashrc
 
-# »»Ô´/Çå³ı pve µÄÎŞ¶©ÔÄ¾¯¸æ/¸üĞÂ°æ±¾
+# æ¢æº/æ¸…é™¤ pve çš„æ— è®¢é˜…è­¦å‘Š/æ›´æ–°ç‰ˆæœ¬
 dpkg -i "${SOURCE_PATH}"/pvemod/deb/pve-fake-subscription_0.0.7_all.deb >>"${LOG_PATH}"/install_fake-subscription.log 2>&1
 sed -i '/maurer/d' /etc/hosts
 echo "127.0.0.1 shop.maurer-it.com" >> /etc/hosts
-# #ÒÔÏÂ·½·¨Ã¿´Î°æ±¾¸üĞÂµÄÊ±ºò¾Í»áÊ§Ğ§£¬ÔİÊ±ÆÁ±Î
+# #ä»¥ä¸‹æ–¹æ³•æ¯æ¬¡ç‰ˆæœ¬æ›´æ–°çš„æ—¶å€™å°±ä¼šå¤±æ•ˆï¼Œæš‚æ—¶å±è”½
 # if [[ $(pveversion -v | grep "proxmox-ve" | awk '{print $2}' | cut -d'-' -f1) == "7.1" ]]; then
 #     sed -i.backup -z "s/res === null || res === undefined || \!res || res\n\t\t\t.data.status.toLowerCase() \!== 'active'/false/g" /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
 #     systemctl daemon-reload
