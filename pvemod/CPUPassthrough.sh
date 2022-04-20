@@ -3,20 +3,20 @@ function _cpu_passthrough(){
 _info "Starting CPU passthrough..."
 if [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ]; then
     _warning "This CPU model doesn't support passthrough! Pass..."
-    echo
+    echo "===================================="
 elif [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED ]; then
     _success "CPU passthrough finished! Pass..."
-    echo
+    echo "===================================="
 else
     if ! grep -E '(vmx|svm)' /proc/cpuinfo > /dev/null 2>&1; then
         _error "This CPU does not support virtualization. Exiting..."
         touch "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT
-        echo
+        echo "===================================="
         return 1
     else
         if dmesg | grep "IOMMU enabled" > /dev/null 2>&1; then
             _success "IOMMU enabled. Setting skipped..."
-            echo
+            echo "===================================="
         else
             if [ -z "$(grep "iommu=on" /etc/default/grub)" ];then
                 cp -af /etc/default/grub /etc/default/grub.bak
@@ -30,7 +30,7 @@ else
                             ;;
                         *)
                             _error "CPU type not recognized!"
-                            echo
+                            echo "===================================="
                             return 1
                             ;;
                     esac
@@ -44,13 +44,13 @@ else
                             ;;
                         *)
                             _error "CPU type not recognized!"
-                            echo
+                            echo "===================================="
                             return 1
                             ;;
                     esac
                 else
                     _error "Unexpected behavior in grub when configuring"
-                    echo
+                    echo "===================================="
                     return 1
                 fi
                 _info "Updating grub..."
@@ -71,7 +71,7 @@ else
         fi
         touch "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED
         _success "CPU passthrough configuration finished!"
-        echo
+        echo "===================================="
     fi
 fi
 }
@@ -85,13 +85,13 @@ if [ ! -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ] && [ ! -f "${INFO_PATH}"/
     return 0
 elif [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ]; then
     _warning "This CPU does not support virtualization and will skip passthrough in the future"
-    echo
+    echo "===================================="
     return 1
 elif [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED ]; then
     if [[ "$(dmesg | grep 'remapping')" =~ "AMD-Vi: Interrupt remapping enabled"|"DMAR-IR: Enabled IRQ remapping in x2apic mode" ]]; then
         if [[ "$(find /sys/kernel/iommu_groups/ -type l)" =~ "/sys/kernel/iommu_groups" ]]; then
             _success "CPU passthrough success!"
-            echo
+            echo "===================================="
             touch "${INFO_PATH}"/CPU_PASSTHROUGH_yes
         elif [ -z "$(find /sys/kernel/iommu_groups/ -type l)" ]; then
             _error "CPU passthrough failed!"
@@ -99,7 +99,7 @@ elif [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED ]; then
         else
             _error "An unexpected situation occurs, please check"
             find /sys/kernel/iommu_groups/ -type l
-            echo
+            echo "===================================="
             return 1
         fi
     else
@@ -121,7 +121,7 @@ elif [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED ]; then
         update-grub >>"${LOG_PATH}"/update_grub.log 2>&1
         touch "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT
         _success "All passthrough related configurations removed!"
-        echo
+        echo "===================================="
     fi
 fi
 }

@@ -47,7 +47,7 @@ function _init_pve_start(){
             _success "run this command and re-run the project:"
             _print "rm -rf ${INFO_PATH}/INITIALIZE_FINISHED"
             touch "${INFO_PATH}"/INITIALIZE_FINISHED
-            echo
+            echo "===================================="
         else
             _error "PVE initializing failed! The log files were saved in:"
             _error "${LOG_PATH}/upgrade_system.log"
@@ -57,13 +57,13 @@ function _init_pve_start(){
         fi
     else
         _success "PVE initialized. Skipping..."
-        echo
+        echo "===================================="
     fi
 
     if [ "${fix_update_problem}" == 1 ]; then
         if _fix_system_upgrade; then
             _success "Update problem fixed!"
-            echo
+            echo "===================================="
         else
             _error "Fixing update problem failed! The log file was saved in ${LOG_PATH}/upgrade_system.log"
             exit 1
@@ -75,14 +75,14 @@ function _init_pve_start(){
             if _expand_root_partition; then
                 _success "Root partition expanded!"
                 touch "${INFO_PATH}"/EXPAND_FINISHED
-                echo
+                echo "===================================="
             else
                 _error "Root partition expand failed! The log file was saved in ${LOG_PATH}/expand_root_partition.log"
                 exit 1
             fi
         else
             _success "Root partition expanded. Skipping..."
-            echo
+            echo "===================================="
         fi
     fi
 }

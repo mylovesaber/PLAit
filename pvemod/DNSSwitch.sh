@@ -89,5 +89,5 @@ if [[ ! $(systemctl is-active systemd-resolved.service) == "active" ]]; then
 fi
 systemd-resolve --flush-caches
 _success "DNS setup finished"
-echo
+echo "===================================="
 }
