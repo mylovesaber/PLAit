@@ -27,6 +27,7 @@ fi
 }
 
 function _init_pve(){
+_info "Initializing... It may take a long time, please be patient..."
 # 命令行可读性调整
 if [ ! -f /root/.bashrc.default ]; then
     cp -a /root/.bashrc /root/.bashrc.default
@@ -79,6 +80,7 @@ apt install -y parted net-tools qemu-guest-agent jq >>"${LOG_PATH}"/install_nece
 }
 
 function _expand_root_partition(){
+_info "Partitioning..."
 lvextend -l +100%FREE -r /dev/pve/root >"${LOG_PATH}"/expand_root_partition.log 2>&1
 #resize2fs -p /dev/pve/root
 if [[ "$(grep '/dev/pve/root' /etc/fstab)" =~ "ext4" ]]; then

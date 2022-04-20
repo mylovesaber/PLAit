@@ -42,23 +42,31 @@ fi
 function _init_pve_start(){
     source "${SOURCE_PATH}"/pvemod/InitPVE.sh
     if [ ! -f "${INFO_PATH}"/INITIALIZE_FINISHED ]; then
-        if _init_pve >>"${LOG_PATH}"/init_pve.log 2>&1; then
+        if _init_pve; then
             _success "PVE initialized. If you want to re-initialize,"
             _success "run this command and re-run the project:"
             _print "rm -rf ${INFO_PATH}/INITIALIZE_FINISHED"
             touch "${INFO_PATH}"/INITIALIZE_FINISHED
+            echo
         else
-            _error "PVE initializing failed! The log file is saved in ${LOG_PATH}/init_pve.log and ${LOG_PATH}/upgrade_system.log"
+            _error "PVE initializing failed! The log files were saved in:"
+            _error "${LOG_PATH}/upgrade_system.log"
+            _error "${LOG_PATH}/install_fake-subscription.log"
+            _error "${LOG_PATH}/install_necessary_packages.log"
+            exit 1
         fi
     else
-        _success "PVE initialized."
+        _success "PVE initialized. Skipping..."
+        echo
     fi
 
     if [ "${fix_update_problem}" == 1 ]; then
         if _fix_system_upgrade; then
             _success "Update problem fixed!"
+            echo
         else
-            _error "Fixing update problem failed! The log file is saved in ${LOG_PATH}/upgrade_system.log"
+            _error "Fixing update problem failed! The log file was saved in ${LOG_PATH}/upgrade_system.log"
+            exit 1
         fi
     fi
 
@@ -67,9 +75,14 @@ function _init_pve_start(){
             if _expand_root_partition; then
                 _success "Root partition expanded!"
                 touch "${INFO_PATH}"/EXPAND_FINISHED
+                echo
             else
-                _error "Root partition expand failed! The log file is saved in ${LOG_PATH}/expand_root_partition.log"
+                _error "Root partition expand failed! The log file was saved in ${LOG_PATH}/expand_root_partition.log"
+                exit 1
             fi
+        else
+            _success "Root partition expanded. Skipping..."
+            echo
         fi
     fi
 }

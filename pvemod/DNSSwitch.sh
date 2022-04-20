@@ -1,5 +1,6 @@
 #!/bin/bash
 function _modify_dns(){
+_info "Modifying DNS..."
 if [ ! -f /etc/resolv.conf.default ]; then
     cp -a /etc/resolv.conf /etc/resolv.conf.default
 fi
@@ -88,4 +89,5 @@ if [[ ! $(systemctl is-active systemd-resolved.service) == "active" ]]; then
 fi
 systemd-resolve --flush-caches
 _success "DNS setup finished"
+echo
 }
