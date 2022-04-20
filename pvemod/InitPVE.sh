@@ -61,20 +61,16 @@ if [ "${update_source}" == "default" ]; then
     echo "deb http://download.proxmox.com/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
 elif [ "${update_source}" == "china" ]; then
     echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
-    if [ ! -f /usr/share/perl5/PVE/APLInfo.pm.default ]; then
-        cp -a /usr/share/perl5/PVE/APLInfo.pm /usr/share/perl5/PVE/APLInfo.pm.default
-    fi
+    [ ! -f /usr/share/perl5/PVE/APLInfo.pm.default ] && cp -a /usr/share/perl5/PVE/APLInfo.pm /usr/share/perl5/PVE/APLInfo.pm.default
     sed -i 's|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|g' /usr/share/perl5/PVE/APLInfo.pm
-    if [ ! -f /etc/apt/sources.list.default ]; then
-        cp -a /etc/apt/sources.list /etc/apt/sources.list.default
-    fi
+    [ ! -f /etc/apt/sources.list.default ] && cp -a /etc/apt/sources.list /etc/apt/sources.list.default
     sed -i 's|^deb http://ftp.debian.org|deb https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list
     sed -i 's|^deb http://security.debian.org|deb https://mirrors.ustc.edu.cn/debian-security|g' /etc/apt/sources.list
 else
     _error "Input wrong! Optional parameters: default/china. Default parameters: \"default\""
     exit 1    
 fi
-rm -f /etc/apt/sources.list.d/pve-enterprise.list
+[ ! -f /etc/apt/sources.list.d/pve-enterprise.list.bak ] && [ -f /etc/apt/sources.list.d/pve-enterprise.list ] && mv /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/pve-enterprise.list.bak
 
 _info "Checking and performing updates to system... "
 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >/root/.pveinstall/log/upgrade_system.log 2>&1
