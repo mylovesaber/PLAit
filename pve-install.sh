@@ -21,10 +21,10 @@ INFO_PATH="/root/.pveinstall/info"
 #####################################################
 
 # 此处文件夹名的检测指定为项目名称，不可更改
-if [ "$(basename "$PWD")" != "pve-home-autoinstall" ]; then
+if [ "$(basename "$PWD")" != "PLAit" ]; then
     tput setaf 1
     echo -e "Wrong path! Please run it from the root path of this project. E.g.:\n
-    cd /root/pve-home-autoinstall"
+    cd /root/PLAit"
     tput sgr0
     exit 1
 else
@@ -101,8 +101,31 @@ function _cpu_passthrough_start(){
     fi
 }
 
+function _modify_conf(){
+# 暂时不启用
+if [[ -f /pveinstall/info/SYSCTL_MODIFIED ]]; then
+    _warning "sysctl.conf 文件已修改！跳过..."
+else
+    cp -a /etc/sysctl.conf /etc/sysctl.conf.bak
+    cat <<EOF >> /etc/sysctl.conf
+net.ipv6.conf.all.accept_dad = 1
+net.ipv6.conf.all.accept_ra = 2
+net.ipv6.conf.all.accept_redirects = 1
+net.ipv6.conf.all.accept_source_route = 0
+net.ipv6.conf.all.autoconf = 1
+net.ipv6.conf.all.disable_ipv6 = 0
+net.ipv6.conf.all.forwarding = 0
+EOF
+    sysctl -p >/dev/null 2>&1
+    touch /pveinstall/info/SYSCTL_MODIFIED
+fi
+}
+
 function _help(){
-    echo "This is a pending help message..."
+echo -e "\n
+PVE Lightweight Automated installation tool(PLAit)
+
+"
 }
 
 if ! ARGS=$(getopt -a -o s:,f,d:,c,r,h -l update_source:,fix_update_problem,extand,setdns:,cpu_passthrough,checkcpu,reboot,help -- "$@")
