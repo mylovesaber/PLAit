@@ -2,8 +2,8 @@
 function _fix_system_upgrade(){
 ## auto solve lock
 _info "Checking and performing updates to system... "
-DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >/root/.pveinstall/log/upgrade_system.log 2>&1
-DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade >>/root/.pveinstall/log/upgrade_system.log 2>&1
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >"${LOG_PATH}"/upgrade_system.log 2>&1
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade >>"${LOG_PATH}"/upgrade_system.log 2>&1
 if [ "$?" -eq 2 ]; then
     _warning "dpkg database is locked."
     _info "fixing dpkg lock..."
@@ -14,8 +14,8 @@ if [ "$?" -eq 2 ]; then
             rm -rf "${l}"
         done
         dpkg --configure -a
-        DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >/root/.pveinstall/log/upgrade_system.log 2>&1
-        DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade >>/root/.pveinstall/log/upgrade_system.log 2>&1
+        DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >"${LOG_PATH}"/upgrade_system.log 2>&1
+        DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade >>"${LOG_PATH}"/upgrade_system.log 2>&1
     fi
     if ! (apt-get check >/dev/null); then
         apt-get install -f
@@ -46,7 +46,7 @@ EOF
 source /root/.bashrc
 
 # 换源/清除 pve 的无订阅警告/更新版本
-dpkg -i "${SOURCE_PATH}"/pvemod/deb/pve-fake-subscription_0.0.7_all.deb >>/root/.pveinstall/log/install_fake-subscription.log 2>&1
+dpkg -i "${SOURCE_PATH}"/pvemod/deb/pve-fake-subscription_0.0.7_all.deb >>"${LOG_PATH}"/install_fake-subscription.log 2>&1
 sed -i '/maurer/d' /etc/hosts
 echo "127.0.0.1 shop.maurer-it.com" >> /etc/hosts
 # #以下方法每次版本更新的时候就会失效，暂时屏蔽
@@ -73,14 +73,17 @@ fi
 [ ! -f /etc/apt/sources.list.d/pve-enterprise.list.bak ] && [ -f /etc/apt/sources.list.d/pve-enterprise.list ] && mv /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/pve-enterprise.list.bak
 
 _info "Checking and performing updates to system... "
-DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >/root/.pveinstall/log/upgrade_system.log 2>&1
-DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade >>/root/.pveinstall/log/upgrade_system.log 2>&1
-apt install -y net-tools qemu-guest-agent jq >>/root/.pveinstall/log/install_necessary_packages.log 2>&1
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" update >"${LOG_PATH}"/upgrade_system.log 2>&1
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade >>"${LOG_PATH}"/upgrade_system.log 2>&1
+apt install -y parted net-tools qemu-guest-agent jq >>"${LOG_PATH}"/install_necessary_packages.log 2>&1
+}
 
-if [ $? == 0 ]; then
-    touch /root/.pveinstall/info/INITIALIZE_FINISHED
-    _success "PVE initialized. If you want to re-initialize,"
-    _success "run this command and re-run the project:"
-    _print "rm -rf /root/.pveinstall/info/INITIALIZE_FINISHED"
+function _expand_root_partition(){
+lvextend -l +100%FREE -r /dev/pve/root >"${LOG_PATH}"/expand_root_partition.log 2>&1
+#resize2fs -p /dev/pve/root
+if [[ "$(grep '/dev/pve/root' /etc/fstab)" =~ "ext4" ]]; then
+    for part in /dev/pve/*;do
+        tune2fs -m 0 /dev/pve/"$part" >>"${LOG_PATH}"/expand_root_partition.log 2>&1
+    done
 fi
 }

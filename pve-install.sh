@@ -2,10 +2,23 @@
 ARGS=
 update_source="default"
 fix_update_problem=0
+extand_root_partition=0
 DNS_PROVIDER=
 CPU_PASSTHROUGH=0
 CPU_CHECK=0
 REBOOT=0
+
+if [ ! -d /root/.pveinstall/info ]; then
+    mkdir -p /root/.pveinstall/info
+fi
+if [ ! -d /root/.pveinstall/log ]; then
+    mkdir -p /root/.pveinstall/log
+fi
+
+LOG_PATH="/root/.pveinstall/log"
+INFO_PATH="/root/.pveinstall/info"
+
+#####################################################
 
 # 此处文件夹名的检测指定为项目名称，不可更改
 if [ "$(basename "$PWD")" != "pve-home-autoinstall" ]; then
@@ -18,19 +31,46 @@ else
     export SOURCE_PATH="$PWD"
     source "${SOURCE_PATH}"/color.sh
 fi
- 
+
+if [[ $EUID -ne 0 ]]; then
+    _error "Root privileges are required to perform this operation"
+    exit 1
+fi
+
 #####################################################
 
 function _init_pve_start(){
     source "${SOURCE_PATH}"/pvemod/InitPVE.sh
-    if [ ! -f /root/.pveinstall/info/INITIALIZE_FINISHED ]; then
-        _init_pve
+    if [ ! -f "${INFO_PATH}"/INITIALIZE_FINISHED ]; then
+        if _init_pve >>"${LOG_PATH}"/init_pve.log 2>&1; then
+            _success "PVE initialized. If you want to re-initialize,"
+            _success "run this command and re-run the project:"
+            _print "rm -rf ${INFO_PATH}/INITIALIZE_FINISHED"
+            touch "${INFO_PATH}"/INITIALIZE_FINISHED
+        else
+            _error "PVE initializing failed! The log file is saved in ${LOG_PATH}/init_pve.log and ${LOG_PATH}/upgrade_system.log"
+        fi
     else
         _success "PVE initialized."
     fi
 
     if [ "${fix_update_problem}" == 1 ]; then
-        _fix_system_upgrade
+        if _fix_system_upgrade; then
+            _success "Update problem fixed!"
+        else
+            _error "Fixing update problem failed! The log file is saved in ${LOG_PATH}/upgrade_system.log"
+        fi
+    fi
+
+    if [ "${extand_root_partition}" == 1 ]; then
+        if [ ! -f "${INFO_PATH}"/EXPAND_FINISHED ]; then
+            if _expand_root_partition; then
+                _success "Root partition expanded!"
+                touch "${INFO_PATH}"/EXPAND_FINISHED
+            else
+                _error "Root partition expand failed! The log file is saved in ${LOG_PATH}/expand_root_partition.log"
+            fi
+        fi
     fi
 }
 
@@ -52,7 +92,7 @@ function _help(){
     echo "This is a pending help message..."
 }
 
-if ! ARGS=$(getopt -a -o s:,f,d:,c,r,h -l update_source:,fix_update_problem,setdns:,cpu_passthrough,checkcpu,reboot,help -- "$@")
+if ! ARGS=$(getopt -a -o s:,f,d:,c,r,h -l update_source:,fix_update_problem,extand,setdns:,cpu_passthrough,checkcpu,reboot,help -- "$@")
 then
     _error "Invalid option, please run the following command to check usage:"
     _error "source $0 -h"
@@ -78,6 +118,9 @@ while true; do
         ;;
     -f | --fix_update_problem)
         fix_update_problem=1
+        ;;
+    --extand)
+        extand_root_partition=1
         ;;
     -d | --setdns)
         DNS_PROVIDER="$2"
@@ -106,13 +149,6 @@ while true; do
 done
 
 # Main
-if [ ! -d /root/.pveinstall/info ]; then
-    mkdir -p /root/.pveinstall/info
-fi
-if [ ! -d /root/.pveinstall/log ]; then
-    mkdir -p /root/.pveinstall/log
-fi
-
 _init_pve_start
 
 if [ "${CPU_CHECK}" == 1 ] && [ "${CPU_PASSTHROUGH}" == 1 ]; then
