@@ -101,48 +101,32 @@ function _cpu_passthrough_start(){
     fi
 }
 
-function _modify_conf(){
-# 暂时不启用
-if [[ -f /pveinstall/info/SYSCTL_MODIFIED ]]; then
-    _warning "sysctl.conf 文件已修改！跳过..."
-else
-    cp -a /etc/sysctl.conf /etc/sysctl.conf.bak
-    cat <<EOF >> /etc/sysctl.conf
-net.ipv6.conf.all.accept_dad = 1
-net.ipv6.conf.all.accept_ra = 2
-net.ipv6.conf.all.accept_redirects = 1
-net.ipv6.conf.all.accept_source_route = 0
-net.ipv6.conf.all.autoconf = 1
-net.ipv6.conf.all.disable_ipv6 = 0
-net.ipv6.conf.all.forwarding = 0
-EOF
-    sysctl -p >/dev/null 2>&1
-    touch /pveinstall/info/SYSCTL_MODIFIED
-fi
+function _modify_sysctl_start(){
+    # 暂时不启用
+    source "${SOURCE_PATH}"/pvemod/ModSysctl.sh
+    _modify_sysctl
 }
 
-function _help(){
-echo -e "\n
-PVE Lightweight Automated installation tool(PLAit)
-
-"
+function _help_display(){
+source "${SOURCE_PATH}"/help.sh
+_help
 }
 
 if ! ARGS=$(getopt -a -o s:,f,d:,c,r,h -l update_source:,fix_update_problem,extand,setdns:,cpu_passthrough,checkcpu,reboot,help -- "$@")
 then
     _error "Invalid option, please run the following command to check usage:"
     _error "source $0 -h"
-    _help
+    _help_display
     exit 1
 elif [ -z "$1" ]; then
     _warning "Please enter options to run the project function!"
     _warning "Here is the help information:"
-    _help
+    _help_display
     exit 1
 elif [ "$1" == "-" ]; then
     _warning "Please enter correct options to run the project function!"
     _warning "Here is the help information:"
-    _help
+    _help_display
     exit 1
 fi
 eval set -- "${ARGS}"
@@ -172,8 +156,7 @@ while true; do
         REBOOT=1
         ;;
     -h | --help)
-        HELP=1
-        _help
+        _help_display
         exit 0
         ;;
     --)
