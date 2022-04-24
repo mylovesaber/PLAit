@@ -21,33 +21,25 @@ else
             if [ -z "$(grep "iommu=on" /etc/default/grub)" ];then
                 cp -af /etc/default/grub /etc/default/grub.bak
                 if [[ "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
-                    case "$(grep -E '(vmx|svm)' /proc/cpuinfo)" in
-                        "vmx")
-                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ intel_iommu=on iommu=pt\"/g" /etc/default/grub
-                            ;;
-                        "svm")
-                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ amd_iommu=on iommu=pt\"/g" /etc/default/grub
-                            ;;
-                        *)
-                            _error "CPU type not recognized!"
-                            echo "===================================="
-                            return 1
-                            ;;
-                    esac
+                    if [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "vmx" ]]; then
+                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ intel_iommu=on iommu=pt\"/g" /etc/default/grub
+                    elif [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "svm" ]]; then
+                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ amd_iommu=on iommu=pt\"/g" /etc/default/grub
+                    else
+                        _error "CPU type not recognized!"
+                        echo "===================================="
+                        return 1
+                    fi
                 elif [[ ! "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
-                    case "$(grep -E '(vmx|svm)' /proc/cpuinfo)" in
-                        "vmx")
-                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet intel_iommu=on iommu=pt\"/g" /etc/default/grub
-                            ;;
-                        "svm")
-                            sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet amd_iommu=on iommu=pt\"/g" /etc/default/grub
-                            ;;
-                        *)
-                            _error "CPU type not recognized!"
-                            echo "===================================="
-                            return 1
-                            ;;
-                    esac
+                    if [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "vmx" ]]; then
+                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet intel_iommu=on iommu=pt\"/g" /etc/default/grub
+                    elif [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "svm" ]]; then
+                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet amd_iommu=on iommu=pt\"/g" /etc/default/grub
+                    else
+                        _error "CPU type not recognized!"
+                        echo "===================================="
+                        return 1
+                    fi
                 else
                     _error "Unexpected behavior in grub when configuring"
                     echo "===================================="
