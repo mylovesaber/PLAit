@@ -1,6 +1,7 @@
 # PVE Lightweight Automatic installation tool(PLAit)
 
->English version: [README](https://github.com/mylovesaber/PLAit/blob/main/README_EN.md)
+>English version: [README](https://github.com/mylovesaber/PLAit/blob/dev/README_EN.md)
+There is a little difference between English and Chinese version.
 
 PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一键部署工具。目的是帮助新手在基于 PVE 虚拟化平台搭建家用软路由系统或 NAS 系统时节省大量时间精力，同时对于熟悉配置的用户而言也相对省心。
 
@@ -8,12 +9,15 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 
 # 功能
 
-- [x] CPU、网卡、核显直通
-- [x] 本地化调整（换源、命令行观感调整、常用软件安装）
+- [x] 一键本地化调整（换源、命令行观感调整、常用软件安装）
 - [x] 一键切换国内各家主流 DNS 服务
-- [x] 去除订阅提示（理论上非大版本更新不会反弹？）
-- [ ] 增加 PVE 界面可显示的硬盘、CPU的温度，CPU频率
-- [ ] 独显直通（暂时没显卡测试。。。）
+- [x] 一键去除订阅提示（理论上非大版本更新不会反弹）
+- [x] 一键直通CPU、网卡、核显
+- [ ] 一键扩容
+- [ ] 一键直通网卡时自动避开 PVE 管理口防止失去远程控制
+- [ ] 一键修改 WEBUI 管理口的 IP 和 设备连接屏幕显示的 WEBUI 网页地址（PLAit 检测网卡的功能依赖这个文件）
+- [ ] 一键增加 PVE 界面可显示的硬盘、CPU的温度，CPU频率
+- [ ] 一键独显直通（暂时没显卡测试。。。）
 - [ ] 一键更新系统但不丢配置的工具（部分基于 PVE 图形界面的魔改在更新后一般会丢去订阅丢显示功能之类的配置）
 - [ ] 一键切换黑暗和默认明亮模式(待测)
 - [ ] 一键安装 SSL 证书
@@ -28,7 +32,7 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 - [ ] 一键安装 windows
 - [ ] 一键安装 MacOS
 - [ ] 一键配置家庭影音环境
-- [ ] 把 WIKI 写好
+- [ ] 把 WIKI 写好（这个没法一键...）
 
 看能挤出多少时间了
 
@@ -43,9 +47,9 @@ source /etc/os-release && echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/p
 cp -a /etc/apt/sources.list /etc/apt/sources.list.default
 mv /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/pve-enterprise.list.bak
 sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|' /etc/apt/sources.list
-apt update && apt install -y screen git net-tools
+apt update && apt install -y screen git net-tools sysfsutils
 # git clone --depth=1 -b dev https://gitee.com/mylovesaber/PLAit.git && cd PLAit; screen -S pve
-git clone --depth=1 https://gitee.com/mylovesaber/PLAit.git && cd PLAit; screen -S pve
+git clone -b dev --depth=1 https://gitee.com/mylovesaber/PLAit.git && cd PLAit; screen -S pve
 ```
 
 # 运行项目
