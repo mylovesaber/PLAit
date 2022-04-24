@@ -1,77 +1,74 @@
 #!/bin/bash
 function _cpu_passthrough(){
 _info "Starting CPU passthrough..."
-if [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ]; then
+if [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ] || ! grep -E '(vmx|svm)' /proc/cpuinfo > /dev/null 2>&1; then
     _warning "This CPU model doesn't support passthrough! Pass..."
+    [ ! -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ] && touch "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT
     echo "===================================="
 elif [ -f "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED ]; then
     _success "CPU passthrough finished! Pass..."
     echo "===================================="
 else
-    if ! grep -E '(vmx|svm)' /proc/cpuinfo > /dev/null 2>&1; then
-        _error "This CPU does not support virtualization. Exiting..."
-        touch "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT
+    if dmesg | grep "IOMMU enabled" > /dev/null 2>&1; then
+        _success "IOMMU enabled. Setting skipped..."
         echo "===================================="
-        return 1
     else
-        if dmesg | grep "IOMMU enabled" > /dev/null 2>&1; then
-            _success "IOMMU enabled. Setting skipped..."
-            echo "===================================="
-        else
-            if [ -z "$(grep "iommu=on" /etc/default/grub)" ];then
-                cp -af /etc/default/grub /etc/default/grub.bak
-                if [[ "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
-                    if [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "vmx" ]]; then
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ intel_iommu=on iommu=pt\"/g" /etc/default/grub
-                    elif [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "svm" ]]; then
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ amd_iommu=on iommu=pt\"/g" /etc/default/grub
-                    else
-                        _error "CPU type not recognized!"
-                        echo "===================================="
-                        return 1
-                    fi
-                elif [[ ! "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
-                    if [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "vmx" ]]; then
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet intel_iommu=on iommu=pt\"/g" /etc/default/grub
-                    elif [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "svm" ]]; then
-                        sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet amd_iommu=on iommu=pt\"/g" /etc/default/grub
-                    else
-                        _error "CPU type not recognized!"
-                        echo "===================================="
-                        return 1
-                    fi
+        if ! "$(grep -q "iommu=on" /etc/default/grub)";then
+            cp -af /etc/default/grub /etc/default/grub.bak
+            if [[ "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
+                if [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "vmx" ]]; then
+                    sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ intel_iommu=on iommu=pt\"/g" /etc/default/grub
+                elif [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "svm" ]]; then
+                    sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ amd_iommu=on iommu=pt\"/g" /etc/default/grub
                 else
-                    _error "Unexpected behavior in grub when configuring"
+                    _error "CPU type not recognized!"
                     echo "===================================="
                     return 1
                 fi
-                _info "Updating grub..."
-                update-grub >>"${LOG_PATH}"/update_grub.log 2>&1
+            elif [[ ! "$(grep "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub)" =~ "quiet" ]]; then
+                if [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "vmx" ]]; then
+                    sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet intel_iommu=on iommu=pt\"/g" /etc/default/grub
+                elif [[ "$(grep -E '(vmx|svm)' /proc/cpuinfo)" =~ "svm" ]]; then
+                    sed -i "$(grep -n "GRUB_CMDLINE_LINUX_DEFAULT" /etc/default/grub | cut -d':' -f1) s/\"$/ quiet amd_iommu=on iommu=pt\"/g" /etc/default/grub
+                else
+                    _error "CPU type not recognized!"
+                    echo "===================================="
+                    return 1
+                fi
+            else
+                _error "Unexpected behavior in grub when configuring"
+                echo "===================================="
+                return 1
             fi
+            _info "Updating grub..."
+            update-grub >>"${LOG_PATH}"/update_grub.log 2>&1
         fi
-        if ! grep "vfio" /etc/modules > /dev/null 2>&1; then
-            cp -a /etc/modules /etc/modules.bak
-            {
-                echo "vfio"
-                echo "vfio_iommu_type1"
-                echo "vfio_pci"
-                echo "vfio_virqfd"
-            } >> /etc/modules
-            [ -f /etc/kernel/postinst.d/zz-update-grub ] && mv /etc/kernel/postinst.d/zz-update-grub /etc/kernel/postinst.d/zz-update-grub.bak
-            _info "Updating kernel modules..."
-            update-initramfs -k all -u >>"${LOG_PATH}"/update_initramfs.log 2>&1
-        fi
-        touch "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED
-        source "${SOURCE_PATH}"/pvemod/wait_for_rebooting.sh
-        _success "CPU passthrough configuration finished!"
-        echo "===================================="
     fi
+    if ! grep "vfio" /etc/modules > /dev/null 2>&1; then
+        cp -a /etc/modules /etc/modules.bak
+        {
+            echo "vfio"
+            echo "vfio_iommu_type1"
+            echo "vfio_pci"
+            echo "vfio_virqfd"
+        } >> /etc/modules
+        [ -f /etc/kernel/postinst.d/zz-update-grub ] && mv /etc/kernel/postinst.d/zz-update-grub /etc/kernel/postinst.d/zz-update-grub.bak
+        _info "Updating kernel modules..."
+        update-initramfs -k all -u >>"${LOG_PATH}"/update_initramfs.log 2>&1
+    fi
+    touch "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED
+    source "${SOURCE_PATH}"/pvemod/wait_for_rebooting.sh
+    _success "CPU passthrough configuration finished!"
+    echo "===================================="
 fi
 }
 
 function _checkcpu(){
 _info "Checking CPU passthrough..."
-if [ ! -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ] && [ ! -f "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED ]; then
+if [ -f "${INFO_PATH}"/WAIT_FOR_REBOOTING ]; then
+    _warning "Found require reboot signal. Please reboot first! Skipping..."
+    return 1
+elif [ ! -f "${INFO_PATH}"/CPU_PASSTHROUGH_NOT_SUPPORT ] && [ ! -f "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED ]; then
     _warning "This CPU is not configured for passthrough, start configuring..."
     _warning "After the configuration is complete, please restart the host, and then run the check"
     _cpu_passthrough

@@ -21,4 +21,4 @@ RemainAfterExit=true
 WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
-systemctl enable reboot_check.service
+systemctl enable reboot_check.service > /dev/null 2>&1
