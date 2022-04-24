@@ -62,6 +62,7 @@ else
             update-initramfs -k all -u >>"${LOG_PATH}"/update_initramfs.log 2>&1
         fi
         touch "${INFO_PATH}"/CPU_PASSTHROUGH_FINISHED
+        source "${SOURCE_PATH}"/pvemod/wait_for_rebooting.sh
         _success "CPU passthrough configuration finished!"
         echo "===================================="
     fi
