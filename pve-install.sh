@@ -6,6 +6,7 @@ extand_root_partition=0
 DNS_PROVIDER=
 CPU_PASSTHROUGH=0
 CPU_CHECK=0
+GET_NIC_INFO=
 REBOOT=0
 
 if [ ! -d /root/.pveinstall/info ]; then
@@ -101,6 +102,15 @@ function _cpu_passthrough_start(){
     fi
 }
 
+function _get_nic_info_start(){
+    source "${SOURCE_PATH}"/pvemod/NetworkCheck.sh
+    if [ ! -f "${INFO_PATH}"/NETWORK_CARD_INFO ]; then
+        _warning "No saved NIC information file! Start collecting..."
+        GET_NIC_INFO="update"
+    fi
+        _get_passthrough_network_card_info
+}
+
 function _modify_sysctl_start(){
     # 暂时不启用
     source "${SOURCE_PATH}"/pvemod/ModSysctl.sh
@@ -112,10 +122,9 @@ source "${SOURCE_PATH}"/help.sh
 _help
 }
 
-if ! ARGS=$(getopt -a -o s:,f,d:,c,r,h -l update_source:,fix_update_problem,extand,setdns:,cpu_passthrough,checkcpu,reboot,help -- "$@")
+if ! ARGS=$(getopt -a -o s:,f,d:,c,C,n:,r,h -l update_source:,fix_update_problem,extand,setdns:,cpu_passthrough,checkcpu,get_nic_info:,reboot,help -- "$@")
 then
-    _error "Invalid option, please run the following command to check usage:"
-    _error "source $0 -h"
+    _error "Invalid option, please read the usage:"
     _help_display
     exit 1
 elif [ -z "$1" ]; then
@@ -149,8 +158,18 @@ while true; do
     -c | --cpu_passthrough)
         CPU_PASSTHROUGH=1
         ;;
-    --checkcpu)
+    -C | --checkcpu)
         CPU_CHECK=1
+        ;;
+    -n | --get_nic_info)
+        if [[ "$2" =~ "update"|"display" ]]; then
+            GET_NIC_INFO="$2"
+        else
+            _error "Wrong parameter!"
+            _error "Available parameter: <update> or <display>"
+            exit 1
+        fi
+        shift
         ;;
     -r | --reboot)
         REBOOT=1
