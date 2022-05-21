@@ -11,7 +11,7 @@ Since this project always run by source command, in order to prevents the termin
 ```bash
 source /etc/os-release && echo "deb http://download.proxmox.com/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
 mv /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/pve-enterprise.list.bak
-apt update && apt install -y screen git net-tools
+apt update && apt install -y screen git net-tools sysfsutils ethtool
 # git clone --depth=1 -b dev https://github.com/mylovesaber/PLAit.git && cd PLAit; screen -S pve
 git clone --depth=1 https://github.com/mylovesaber/PLAit.git && cd PLAit; screen -S pve
 ```
