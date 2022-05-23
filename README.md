@@ -7,14 +7,15 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 
 由于是基于本人日用需求，所以不会出现各种奇怪玩法。此处仅提供一键部署的全部选项，具体用法放 WIKI 教程中。
 
-# 功能
+# 功能简介
 
 - [x] 一键本地化调整（换源、命令行观感调整、常用软件安装）
 - [x] 一键切换国内各家主流 DNS 服务
 - [x] 一键去除订阅提示（理论上非大版本更新不会反弹）
 - [x] 一键直通CPU、网卡、核显
 - [ ] 一键扩容
-- [ ] 一键直通网卡时自动避开 PVE 管理口防止失去远程控制
+- [x] 一键检测 PVE 管理口，以遍后续直通网卡时自动避开，防止失去远程控制（可以考虑把他改成首次使用此项目就自动检测？）
+- [x] 一键修复错误直通管理口导致的 WEBUI 和 ssh 无法连接的问题(这功能好像可以做成定时自动检测，但首次启动的话需要人工启动，以后就自动启动，遇到问题就自动修复，但只能是基于此项目搭建的环境，与上一行的功能有关)
 - [ ] 一键修改 WEBUI 管理口的 IP 和 设备连接屏幕显示的 WEBUI 网页地址（PLAit 检测网卡的功能依赖这个文件）
 - [ ] 一键增加 PVE 界面可显示的硬盘、CPU的温度，CPU频率
 - [ ] 一键独显直通（暂时没显卡测试。。。）
@@ -27,7 +28,7 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 - [ ] 一键配好 IPV6 公网全反代
 - [ ] 一键配好纯 IPV4 访问纯 IPV6 公网 NAS、软路由等系统功能
 - [ ] 一键安装黑群晖
-- [ ] 一键安装黑 qnap（不确定能不能成，优先级应该是最靠后的）
+- [ ] 一键安装黑 qnap（不确定能不能成，优先级应该是最靠后的，和黑群晖一样都是个人用于测试未来开发的项目的兼容性用途，只是确认能开机能用命令行，不保证任何稳定性）
 - [ ] 一键安装 truenas
 - [ ] 一键安装 windows
 - [ ] 一键安装 MacOS
@@ -38,24 +39,63 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 
 ![](https://img.wxcha.com/file/202006/02/d30107da13.jpg)
 
-# 准备工作
+# 安装工具
 
-假设用户打不开 Github 网站，所以以下所有配置基于 Gitee(与 Github 同步，不用纠结用哪个)。由于本项目一律使用 source 运行，所以防止出现意外情况时终端被关闭，后续再运行本项目前请一律先进入 screen 后台（`screen -S pve`）并进入该项目的根目录下，下面的命令请一行行运行。
+2022年5月18日，码云（gitee）启动了代码审查机制，但凡不合规矩都可能被删除或阻止其他用户访问，且默认阻断匿名访问功能，鉴于本工具骨骼清奇，为了未来安全稳定所考虑，我已清除码云上的该项目代码。
+经过测试，中国大陆大部分地区没有特殊手段无法打开 Github 网站，但基本都能打开 Gitlab，于是我设置成中国大陆用户默认从 Gitlab 获取工具源码。
+不要有非 Github 不用的思想，我代码都是首先同步到 Gitlab，然后再由 Gitlab 自动同步到 Github上。
+
+如果未来不小心删掉或修改了工具中的一些功能或代码，可以通过运行安装工具命令来强制重置。重装工具的操作不会影响到工具已经应用到系统中的任何功能。
+以下四条命令根据注释内容介绍，四选一即可。
 
 ```bash
-source /etc/os-release && echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
-cp -a /etc/apt/sources.list /etc/apt/sources.list.default
-mv /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/pve-enterprise.list.bak
-sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|' /etc/apt/sources.list
-apt update && apt install -y screen git net-tools sysfsutils
-# git clone --depth=1 -b dev https://gitee.com/mylovesaber/PLAit.git && cd PLAit; screen -S pve
-git clone -b dev --depth=1 https://gitee.com/mylovesaber/PLAit.git && cd PLAit; screen -S pve
+# 基于 gitlab （中国大陆用户最优先用这个）
+# 隐藏详细输出信息（默认）
+bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh)
+
+# 显示详细输出信息
+bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh) -l
+
+#####################################################################################################
+# 基于 github
+# 隐藏详细输出信息（默认）
+bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github
+
+# 显示详细输出信息
+bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github -l
+
 ```
 
-# 运行项目
+安装完成后，在命令行直接输入命令： `plait` 或 `pla` 均可正常运行该工具。
+
+# 运行工具
 
 选项：
 
 ```bash
 等写好再发
+```
+
+---
+
+# 测试版
+
+所有最新版本代码均推送到 dev 分支并直接运行以检查在线部署是否存在错误，所以事先没有在本地做除了语法正确性以外的任何测试，随时可能更新出一堆 bug 来，仅供我个人调试用，如果你不是开发者千万别用以下的选项。
+
+```bash
+# 基于 gitlab
+# 隐藏详细输出信息（默认）
+bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh) -d
+
+# 显示详细输出信息
+bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh) -dl
+
+#####################################################################################################
+# 基于 github
+# 隐藏详细输出信息（默认）
+bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github -d
+
+# 显示详细输出信息
+bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github -dl
+
 ```

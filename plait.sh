@@ -19,17 +19,29 @@ fi
 LOG_PATH="/root/.pveinstall/log"
 INFO_PATH="/root/.pveinstall/info"
 
+# function _test_screen_when_exiting(){
+# if ! dpkg -l | grep "screen" | grep -v "dtach"; then
+#     exit
+# fi
+# testScreenResult=$(echo $STY >/tmp/testScreenResult 2>&1)
+# if [ -z ${testScreenResult} ]; then
+#     echo zero
+# else
+#     echo other
+# fi
+# }
+
 #####################################################
 
 # 此处文件夹名的检测指定为项目名称，不可更改
-if [ "$(basename "$PWD")" != "PLAit" ]; then
+if [ ! -d /usr/local/PLAit ]; then
     tput setaf 1
-    echo -e "Wrong path! Please run it from the root path of this project. E.g.:\n
-    cd /root/PLAit"
+    echo -e "PLAit unavailable! Please install it first! You can find the help information here:\n
+    https://gitlab.com/mylovesaber/PLAit.git"
     tput sgr0
     exit 1
 else
-    export SOURCE_PATH="$PWD"
+    export SOURCE_PATH="/usr/local/PLAit"
     source "${SOURCE_PATH}"/color.sh
 fi
 
