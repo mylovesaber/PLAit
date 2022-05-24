@@ -70,7 +70,7 @@ deb https://enterprise.proxmox.com/debian/pve $VERSION_CODENAME pve-enterprise
 EOF
 
     [ -f /etc/apt/sources.list.d/pve-enterprise.list ] && rm -rf /etc/apt/sources.list.d/pve-enterprise.list
-    _success "Backing up finished."
+    _success "Backup finished."
 }
 
 function _test_network(){
@@ -128,34 +128,34 @@ function _upgrade_sys_and_ins_deps(){
 }
 
 function _install_plait(){
-case ${SOURCE_NAME} in
-    "gitlab")
-        SOURCE_LINK="https://gitlab.com/mylovesaber/PLAit.git"
-        ;;
-    "github")
-        SOURCE_LINK="https://github.com/mylovesaber/PLAit.git"
-        ;;
-    "gitee")
-        SOURCE_LINK="https://gitee.com/mylovesaber/PLAit.git"
-        ;;
-    *)
-    :
-esac
+    case ${SOURCE_NAME} in
+        "gitlab")
+            SOURCE_LINK="https://gitlab.com/mylovesaber/PLAit.git"
+            ;;
+        "github")
+            SOURCE_LINK="https://github.com/mylovesaber/PLAit.git"
+            ;;
+        "gitee")
+            SOURCE_LINK="https://gitee.com/mylovesaber/PLAit.git"
+            ;;
+        *)
+        :
+    esac
 
-if ! git clone "${DEV}" --depth=1 "${SOURCE_LINK}" /usr/local/PLAit; then
-    _error "Some errors occurred while downloading PLAit!"
-    _error "These error messages have been saved in this log:"
-    _error "${LOG_FILE}"
-    exit 1
-else
-    _info "Converting file format..."
-    dos2unix /usr/local/PLAit/plait.sh >>"${LOG_FILE}" 2>&1
-    _info "Adding PLAit as a system tool..."
-    [ -f /usr/bin/plait ] && rm -rf /usr/bin/plait
-    ln -s /usr/local/PLAit/plait.sh /usr/bin/plait
-    [ -f /usr/bin/pla ] && rm -rf /usr/bin/pla
-    ln -s /usr/local/PLAit/plait.sh /usr/bin/pla
-fi
+    if ! git clone "${DEV}" --depth=1 "${SOURCE_LINK}" /usr/local/PLAit; then
+        _error "Some errors occurred while downloading PLAit!"
+        _error "These error messages have been saved in this log:"
+        _error "${LOG_FILE}"
+        exit 1
+    else
+        _info "Converting file format..."
+        dos2unix /usr/local/PLAit/plait.sh >>"${LOG_FILE}" 2>&1
+        _info "Adding PLAit as a system tool..."
+        [ -f /usr/bin/plait ] && rm -rf /usr/bin/plait
+        ln -s /usr/local/PLAit/plait.sh /usr/bin/plait
+        [ -f /usr/bin/pla ] && rm -rf /usr/bin/pla
+        ln -s /usr/local/PLAit/plait.sh /usr/bin/pla
+    fi
 }
 ##########################################################
 
@@ -181,7 +181,7 @@ while true; do
         shift
         ;;
     -d | --dev)
-        DEV="-b dev"
+        DEV="--branch dev"
         ;;
     -l | --display_log)
         LOG=1
@@ -218,4 +218,4 @@ else
 fi
 _success "PLAit installation finished!"
 
-INFO_SIGNAL
+touch ${INFO_SIGNAL}
