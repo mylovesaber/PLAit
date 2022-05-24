@@ -85,7 +85,12 @@ function _test_network(){
     fi
 }
 
-function _test_country_name(){
+function _CN_setting(){
+    source /etc/os-release && echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
+    sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|' /etc/apt/sources.list
+}
+
+function _mod_source_mirror_files(){
     _info "Testing country name. Up to 20 seconds..."
     if locationInfo=$(curl -s -m 10 ipinfo.io/country 2>/dev/null); then
         _success "Country name: ${locationInfo}"
@@ -95,14 +100,6 @@ function _test_country_name(){
         _error "Please contact and assist developers to add detection methods that can obtain the name of your country. Exiting..."
         exit 1
     fi
-}
-
-function _CN_setting(){
-    source /etc/os-release && echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
-    sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|' /etc/apt/sources.list
-}
-
-function _mod_source_mirror_files(){
     builtInCountry=("mainland China")
     case ${locationInfo} in
         "CN"|"China")
@@ -197,7 +194,6 @@ done
 _reset_plait
 _backup_source_mirror_file
 _test_network
-_test_country_name | tee -ai "${LOG_FILE}" 2>&1
 _mod_source_mirror_files
 
 _info "Upgrading system and install dependencies..."
@@ -208,7 +204,7 @@ else
     _warning "it may take a long time here, please do not continue other operations, the system does not crash..."
     _upgrade_sys_and_ins_deps >> "${LOG_FILE}" 2>&1
 fi
-_success "Upgrading system and install dependencies finished"
+_success "Upgrading system and installing dependencies finished"
 
 _info "Installing PLAit..."
 if [ ${LOG} == 1 ]; then
