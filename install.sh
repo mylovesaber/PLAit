@@ -105,7 +105,9 @@ function _CN_setting(){
 function _mod_source_mirror_files(){
     builtInCountry=("mainland China")
     case ${locationInfo} in
-        "CN"|"China")_CN_setting;;
+        "CN"|"China")
+            _CN_setting
+            ;;
         *)
             _warning "This operation is to replace the source mirrors of debian and pve to achieve the fastest download experience."
             _warning "If the default software source mirror of Proxmox cannot meet the normal software download requirements, "
@@ -147,6 +149,7 @@ function _install_plait(){
     else
         _info "Converting file format..."
         dos2unix /usr/local/PLAit/plait.sh >>"${LOG_FILE}" 2>&1
+        chmod +x /usr/local/PLAit/plait.sh
         _info "Adding PLAit as a system tool..."
         [ -f /usr/bin/plait ] && rm -rf /usr/bin/plait
         ln -s /usr/local/PLAit/plait.sh /usr/bin/plait
