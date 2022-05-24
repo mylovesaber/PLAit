@@ -135,14 +135,11 @@ function _install_plait(){
         "github")
             SOURCE_LINK="https://github.com/mylovesaber/PLAit.git"
             ;;
-        "gitee")
-            SOURCE_LINK="https://gitee.com/mylovesaber/PLAit.git"
-            ;;
         *)
         :
     esac
 
-    if ! git clone "${DEV}" --depth=1 "${SOURCE_LINK}" /usr/local/PLAit; then
+    if ! git clone ${DEV} --depth=1 "${SOURCE_LINK}" /usr/local/PLAit; then
         _error "Some errors occurred while downloading PLAit!"
         _error "These error messages have been saved in this log:"
         _error "${LOG_FILE}"
@@ -171,11 +168,11 @@ eval set -- "${ARGS}"
 while true; do
     case "$1" in
     -s | --source_name)
-        if [[ "$2" =~ "github"|"gitlab"|"gitee" ]]; then
+        if [[ "$2" =~ "github"|"gitlab" ]]; then
             SOURCE_NAME="$2"
         else
             _error "Wrong parameter!"
-            _error "Available parameter: <github> or <gitlab> or <gitee>"
+            _error "Available parameter: <github> or <gitlab>"
             exit 1
         fi
         shift
