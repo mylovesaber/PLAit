@@ -41,7 +41,7 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 
 # 安装工具
 
-2022年5月18日，码云（gitee）启动了代码审查机制，但凡不合规矩都可能被删除或阻止其他用户访问，且默认阻断匿名访问功能，鉴于本工具骨骼清奇，为了未来安全稳定所考虑，我已清除码云上的该项目代码。
+2022年5月18日，码云（gitee）启动了代码审查机制，但凡不合规矩都可能被删除或阻止其他用户访问，且默认阻断匿名访问功能，鉴于本工具骨骼清奇，为了未来安全稳定所考虑，码云平台只作为该项目代码的备选平台。
 经过测试，中国大陆大部分地区没有特殊手段无法打开 Github 网站，但基本都能打开 Gitlab，于是我设置成中国大陆用户默认从 Gitlab 获取工具源码。
 不要有非 Github 不用的思想，我代码都是首先同步到 Gitlab，然后再由 Gitlab 自动同步到 Github上。
 
@@ -51,18 +51,18 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 ```bash
 # 基于 gitlab （中国大陆用户最优先用这个）
 # 隐藏详细输出信息（默认）
-bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh)
+bash<(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=main)
 
 # 显示详细输出信息
-bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh) -l
+bash<(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=main) -l
 
 #####################################################################################################
 # 基于 github
 # 隐藏详细输出信息（默认）
-bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github
+bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/install.sh) -s github
 
 # 显示详细输出信息
-bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github -l
+bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/install.sh) -s github -l
 
 ```
 
@@ -85,17 +85,17 @@ bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-inst
 ```bash
 # 基于 gitlab
 # 隐藏详细输出信息（默认）
-bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh) -d
+bash <(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=dev) -d
 
 # 显示详细输出信息
-bash<(curl -Ls https://gitlab.com/mylovesaber/PLAit/-/raw/main/pre-install.sh) -dl
+bash <(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=dev) -dl
 
 #####################################################################################################
 # 基于 github
 # 隐藏详细输出信息（默认）
-bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github -d
+bash <(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/dev/install.sh) -s github -d
 
 # 显示详细输出信息
-bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/pre-install.sh) -s github -dl
+bash <(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/dev/install.sh) -s github -dl
 
 ```
