@@ -3,12 +3,13 @@
 >English version: [README](https://github.com/mylovesaber/PLAit/blob/dev/README_EN.md)
 There is a little difference between English and Chinese version.
 
-PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一键部署工具。目的是帮助新手在基于 PVE 虚拟化平台搭建家用软路由系统或 NAS 系统时节省大量时间精力，同时对于熟悉配置的用户而言也相对省心。
-
-由于是基于本人日用需求，所以不会出现各种奇怪玩法。此处仅提供一键部署的全部选项，具体用法放 WIKI 教程中。
+PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的自动化部署工具。目的是帮助新手在基于 PVE 虚拟化平台搭建家用软路由系统或 NAS 系统时节省大量时间精力，同时对于熟悉配置的用户而言也相对省心。
+本项目由安装工具的脚本和工具本身共两部分组成。
+由于是基于本人日用需求，所以不会出现各种奇怪玩法。此处仅提供自动化部署的全部选项，具体用法可以查看 WIKI 教程。
 
 # 功能简介
 
+- [x] 一键安装工具本身（已为多国家或地区准备好镜像源的自适应框架，中国大陆默认使用中科大源，有其他地区的可以提供自行测试效果最好的源，我来加进安装脚本）
 - [x] 一键本地化调整（换源、命令行观感调整、常用软件安装）
 - [x] 一键切换国内各家主流 DNS 服务
 - [x] 一键去除订阅提示（理论上非大版本更新不会反弹）
@@ -41,28 +42,29 @@ PLAit 是一个基于 PVE 虚拟化平台，面向家用网络环境条件的一
 
 # 安装工具
 
-2022年5月18日，码云（gitee）启动了代码审查机制，但凡不合规矩都可能被删除或阻止其他用户访问，且默认阻断匿名访问功能，鉴于本工具骨骼清奇，为了未来安全稳定所考虑，码云平台只作为该项目代码的备选平台。
-经过测试，中国大陆大部分地区没有特殊手段无法打开 Github 网站，但基本都能打开 Gitlab，于是我设置成中国大陆用户默认从 Gitlab 获取工具源码。
-不要有非 Github 不用的思想，我代码都是首先同步到 Gitlab，然后再由 Gitlab 自动同步到 Github上。
+2022年5月18日，码云（Gitee）启动了代码审查机制，但凡不合规矩或者存在个别字眼比较敏感的都可能被删除或阻止其他用户访问，
+且默认阻断匿名访问，鉴于本工具骨骼清奇，所以该平台我已彻底放弃。
+经过测试，中国大陆大部分地区没有特殊手段无法打开 GitHub 网站，但基本都能打开 GitLab，于是我设置成中国大陆用户默认从 GitLab 获取工具源码。
+不要有非 GitHub 不用的思想，我代码都是首先同步到 GitLab，然后再由 GitLab 自动同步到 GitHub 上。
 
-如果未来不小心删掉或修改了工具中的一些功能或代码，可以通过运行安装工具命令来强制重置。重装工具的操作不会影响到工具已经应用到系统中的任何功能。
+如果未来不小心删掉或修改了工具中的一些功能或代码，可以通过运行安装工具命令来强制重置。重装工具的任何操作都不会影响到 PLAit 已经应用到系统中的任何功能。
 以下四条命令根据注释内容介绍，四选一即可。
 
 ```bash
 # 基于 gitlab （中国大陆用户最优先用这个）
-# 隐藏详细输出信息（默认）
-bash<(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=main)
+# 隐藏详细输出信息（默认，显示信息比下面那个美观点）
+bash <(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=main)
 
-# 显示详细输出信息
-bash<(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=main) -l
+# 显示详细输出信息（首次使用不确定会不会有兼容性问题的先跑这个，以后同设备同网络环境再安装的时候就默认跑上面的即可，）
+bash <(curl -Ls https://gitlab.com/api/v4/projects/36366519/repository/files/install.sh/raw?ref=main) -l
 
 #####################################################################################################
 # 基于 github
 # 隐藏详细输出信息（默认）
-bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/install.sh) -s github
+bash <(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/install.sh) -s github
 
 # 显示详细输出信息
-bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/install.sh) -s github -l
+bash <(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/install.sh) -s github -l
 
 ```
 
@@ -78,9 +80,9 @@ bash<(curl -Ls https://raw.githubusercontent.com/mylovesaber/PLAit/main/install.
 
 ---
 
-# 测试版
+# 开发版
 
-所有最新版本代码均推送到 dev 分支并直接运行以检查在线部署是否存在错误，所以事先没有在本地做除了语法正确性以外的任何测试，随时可能更新出一堆 bug 来，仅供我个人调试用，如果你不是开发者千万别用以下的选项。
+所有最新修改的代码均推送到 dev 分支并直接运行以检查在线部署是否存在错误，所以事先没有在本地做除了语法正确性以外的任何测试，随时可能更新出一堆 bug 来，仅供我个人调试用，如果你不是开发者千万别用以下的选项。
 
 ```bash
 # 基于 gitlab

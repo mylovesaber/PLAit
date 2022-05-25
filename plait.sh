@@ -8,14 +8,6 @@ CPU_PASSTHROUGH=0
 CPU_CHECK=0
 GET_NIC_INFO=
 REBOOT=0
-
-if [ ! -d /root/.pveinstall/info ]; then
-    mkdir -p /root/.pveinstall/info
-fi
-if [ ! -d /root/.pveinstall/log ]; then
-    mkdir -p /root/.pveinstall/log
-fi
-
 LOG_PATH="/root/.pveinstall/log"
 INFO_PATH="/root/.pveinstall/info"
 
