@@ -8,8 +8,9 @@ CPU_PASSTHROUGH=0
 CPU_CHECK=0
 GET_NIC_INFO=
 REBOOT=0
-LOG_PATH="/root/.pveinstall/log"
-INFO_PATH="/root/.pveinstall/info"
+MAIN_PATH="/var/log/plait"
+LOG_PATH="/var/log/plait/log"
+INFO_PATH="/var/log/plait/info"
 
 # function _test_screen_when_exiting(){
 # if ! dpkg -l | grep "screen" | grep -v "dtach"; then

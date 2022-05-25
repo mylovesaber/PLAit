@@ -24,8 +24,8 @@ function _error() {
 
 ##########################################################
 # Variables
-LOG_FILE="/root/.pveinstall/log/install_plait.log"
-INFO_SIGNAL="/root/.pveinstall/info/PLAIT_INSTALLED"
+LOG_FILE="/var/log/plait/log/install_plait.log"
+INFO_SIGNAL="/var/log/plait/info/PLAIT_INSTALLED"
 locationInfo=""
 SOURCE_NAME="gitlab"
 SOURCE_LINK=""
@@ -46,10 +46,10 @@ _checkroot
 function _reset_plait(){
     _info "Resetting PLAit..."
     [ -d /usr/local/PLAit ] && rm -rf /usr/local/PLAit
-    [ ! -d /root/.pveinstall/log ] && mkdir -p /root/.pveinstall/log
-    [ ! -d /root/.pveinstall/info ] && mkdir -p /root/.pveinstall/info
-    [ -f /root/.pveinstall/log/install_plait.log ] && rm -rf /root/.pveinstall/log/install_plait.log
-    [ -f /root/.pveinstall/info/PLAIT_INSTALLED ] && rm -rf /root/.pveinstall/info/PLAIT_INSTALLED
+    [ ! -d /var/log/plait/log ] && mkdir -p /var/log/plait/log
+    [ ! -d /var/log/plait/info ] && mkdir -p /var/log/plait/info
+    [ -f /var/log/plait/log/install_plait.log ] && rm -rf /var/log/plait/log/install_plait.log
+    [ -f /var/log/plait/info/PLAIT_INSTALLED ] && rm -rf /var/log/plait/info/PLAIT_INSTALLED
     _success "Reset finished."
 }
 

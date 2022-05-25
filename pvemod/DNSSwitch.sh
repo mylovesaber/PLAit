@@ -79,7 +79,7 @@ esac
 
 if [[ ! $(systemctl is-enabled systemd-resolved.service) == "enabled" ]]; then
     _warning "DNS service isn't set to auto-start. Setting to auto-start..."
-    systemctl enable systemd-resolved.service >>/root/.pveinstall/log/enable_systemd-resolved.log 2>&1
+    systemctl enable systemd-resolved.service >>"${LOG_PATH}"/enable_systemd-resolved.log 2>&1
     _success "DNS service has been set to start automatically"
 fi
 if [[ ! $(systemctl is-active systemd-resolved.service) == "active" ]]; then
