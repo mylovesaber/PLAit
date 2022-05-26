@@ -51,7 +51,7 @@ function _reset_plait(){
     [ ! -d /var/log/plait/info ] && mkdir -p /var/log/plait/info
     [ -f /var/log/plait/log/install_plait.log ] && rm -rf /var/log/plait/log/install_plait.log
     [ -f /var/log/plait/info/PLAIT_INSTALLED ] && rm -rf /var/log/plait/info/PLAIT_INSTALLED
-    _success "Reset finished."
+    _success "Finished."
 }
 
 function _backup_source_mirror_file(){
@@ -71,7 +71,7 @@ EOF
 
     [ -f /etc/apt/sources.list.d/pve-enterprise.list ] && rm -rf /etc/apt/sources.list.d/pve-enterprise.list
     [ -f /etc/apt/sources.list ] && rm -rf /etc/apt/sources.list
-    _success "Backup finished."
+    _success "Finished."
 }
 
 function _test_network(){
@@ -88,6 +88,8 @@ function _test_network(){
 
 function _CN_setting(){
     sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|;s|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|' /etc/apt/sources.list
+    [ ! -f /usr/share/perl5/PVE/APLInfo.pm_back ] && cp -a /usr/share/perl5/PVE/APLInfo.pm /usr/share/perl5/PVE/APLInfo.pm_back
+    sed -i 's|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|g' /usr/share/perl5/PVE/APLInfo.pm
 }
 
 function _mod_source_mirror_files(){
@@ -103,11 +105,11 @@ EOF
     _success "Finished."
     _info "Testing country name. Up to 20 seconds..."
     if locationInfo=$(curl -s -m 10 ipinfo.io/country 2>/dev/null); then
-        _success "Country name: ${locationInfo}"
+        _success "Country/Region name: ${locationInfo}"
     elif locationInfo=$(curl -s -m 10 ifconfig.co/country 2>/dev/null); then
-        _success "Country name: ${locationInfo}"
+        _success "Country/Region name: ${locationInfo}"
     else
-        _error "Please contact and assist developers to add detection methods that can obtain the name of your country. Exiting..."
+        _error "Please contact and assist developers to add detection methods that can obtain the name of your country or region. Exiting..."
         exit 1
     fi
     builtInCountry=("mainland China")
@@ -129,7 +131,7 @@ EOF
 
 function _upgrade_sys_and_ins_deps(){
     if ! apt update && apt install -y screen git net-tools sysfsutils ethtool dos2unix; then
-        _error "Some errors occurred while upgrading the system or installing necessary dependencies!"
+        _error "Some errors occurred while updating the system or installing necessary dependencies!"
         _error "These error messages have been saved in this log:"
         _error "${LOG_FILE}"
         exit 1
@@ -206,7 +208,7 @@ _backup_source_mirror_file
 _test_network
 _mod_source_mirror_files
 
-_info "Upgrading system and install dependencies..."
+_info "Updating source mirror and install dependencies..."
 if [ ${LOG} == 1 ]; then
     _upgrade_sys_and_ins_deps | tee -ai "${LOG_FILE}" 2>&1
 else
@@ -214,7 +216,7 @@ else
     _warning "it may take a long time here, please do not continue other operations, the system does not crash..."
     _upgrade_sys_and_ins_deps >> "${LOG_FILE}" 2>&1
 fi
-_success "Upgrading system and installing dependencies finished"
+_success "Finished"
 
 _info "Installing PLAit..."
 if [ ${LOG} == 1 ]; then

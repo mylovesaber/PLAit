@@ -1,6 +1,5 @@
 #!/bin/bash
 ARGS=
-update_source="default"
 fix_update_problem=0
 extand_root_partition=0
 DNS_PROVIDER=
@@ -127,7 +126,7 @@ source "${SOURCE_PATH}"/help.sh
 _help
 }
 
-if ! ARGS=$(getopt -a -o s:,f,d:,c,C,n:,r,h -l update_source:,fix_update_problem,extand,setdns:,cpu_passthrough,checkcpu,get_nic_info:,reboot,help -- "$@")
+if ! ARGS=$(getopt -a -o f,d:,c,C,n:,r,h -l fix_update_problem,extand,setdns:,cpu_passthrough,checkcpu,get_nic_info:,reboot,help -- "$@")
 then
     _error "Invalid option, please read the usage:"
     _help_display
@@ -146,10 +145,6 @@ fi
 eval set -- "${ARGS}"
 while true; do
     case "$1" in
-    -s | --update_source)
-        update_source="$2"
-        shift
-        ;;
     -f | --fix_update_problem)
         fix_update_problem=1
         ;;
