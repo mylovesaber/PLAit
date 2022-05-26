@@ -31,6 +31,7 @@ SOURCE_NAME="gitlab"
 SOURCE_LINK=""
 DEV=""
 LOG=0
+source /etc/os-release
 
 ##########################################################
 # function
@@ -55,8 +56,7 @@ function _reset_plait(){
 
 function _backup_source_mirror_file(){
     _info "Backing up source mirror files..."
-    source /etc/os-release
-    cat << EOF > /etc/apt/sources.list.default
+    cat << EOF > /etc/apt/sources.list.bak
 deb http://ftp.debian.org/debian $VERSION_CODENAME main contrib
 
 deb http://ftp.debian.org/debian $VERSION_CODENAME-updates main contrib
@@ -65,11 +65,12 @@ deb http://ftp.debian.org/debian $VERSION_CODENAME-updates main contrib
 deb http://security.debian.org $VERSION_CODENAME-security main contrib
 EOF
 
-    cat << EOF > /etc/apt/sources.list.d/pve-enterprise.list.default
+    cat << EOF > /etc/apt/sources.list.d/pve-enterprise.list.bak
 deb https://enterprise.proxmox.com/debian/pve $VERSION_CODENAME pve-enterprise
 EOF
 
     [ -f /etc/apt/sources.list.d/pve-enterprise.list ] && rm -rf /etc/apt/sources.list.d/pve-enterprise.list
+    [ -f /etc/apt/sources.list ] && rm -rf /etc/apt/sources.list
     _success "Backup finished."
 }
 
@@ -86,11 +87,20 @@ function _test_network(){
 }
 
 function _CN_setting(){
-    source /etc/os-release && echo "deb https://mirrors.ustc.edu.cn/proxmox/debian/pve $VERSION_CODENAME pve-no-subscription" > /etc/apt/sources.list.d/pve-no-subscription.list
-    sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|' /etc/apt/sources.list
+    sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|;s|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|' /etc/apt/sources.list
 }
 
 function _mod_source_mirror_files(){
+    _info "Adding all official source mirrors (e.g. ceph function)..."
+    cat << EOF > /etc/apt/sources.list
+deb http://ftp.debian.org/debian $VERSION_CODENAME main contrib
+deb http://ftp.debian.org/debian $VERSION_CODENAME-updates main contrib
+deb http://security.debian.org $VERSION_CODENAME-security main contrib
+deb http://download.proxmox.com/debian/pve $VERSION_CODENAME pve-no-subscription
+deb http://download.proxmox.com/debian/ceph-pacific $VERSION_CODENAME main
+deb http://download.proxmox.com/debian/ceph-octopus $VERSION_CODENAME main
+EOF
+    _success "Finished."
     _info "Testing country name. Up to 20 seconds..."
     if locationInfo=$(curl -s -m 10 ipinfo.io/country 2>/dev/null); then
         _success "Country name: ${locationInfo}"
