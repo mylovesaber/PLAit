@@ -90,6 +90,7 @@ function _CN_setting(){
     sed -i 's|http://ftp.debian.org|https://mirrors.ustc.edu.cn|;s|http://security.debian.org|https://mirrors.ustc.edu.cn/debian-security|;s|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|' /etc/apt/sources.list
     [ ! -f /usr/share/perl5/PVE/APLInfo.pm_back ] && cp -a /usr/share/perl5/PVE/APLInfo.pm /usr/share/perl5/PVE/APLInfo.pm_back
     sed -i 's|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|g' /usr/share/perl5/PVE/APLInfo.pm
+    systemctl restart pvedaemon.service
 }
 
 function _mod_source_mirror_files(){
@@ -98,9 +99,9 @@ function _mod_source_mirror_files(){
 deb http://ftp.debian.org/debian $VERSION_CODENAME main contrib
 deb http://ftp.debian.org/debian $VERSION_CODENAME-updates main contrib
 deb http://security.debian.org $VERSION_CODENAME-security main contrib
-deb http://download.proxmox.com/debian/pve $VERSION_CODENAME pve-no-subscription
 deb http://download.proxmox.com/debian/ceph-pacific $VERSION_CODENAME main
 deb http://download.proxmox.com/debian/ceph-octopus $VERSION_CODENAME main
+deb http://download.proxmox.com/debian/pve $VERSION_CODENAME pve-no-subscription
 EOF
     _success "Finished."
     _info "Testing country name. Up to 20 seconds..."
